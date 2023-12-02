@@ -1,5 +1,5 @@
 [workspace]
-members = ["december-1st"]
+members = ["day-one"]
 resolver = "2"
 
 [workspace.package]
