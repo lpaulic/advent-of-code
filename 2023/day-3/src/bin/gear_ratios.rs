@@ -1,13 +1,12 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-extern crate day_three;
-use day_three::EngineSchematic;
+extern crate day_3;
+use day_3::EngineSchematic;
 
 fn main() -> std::io::Result<()> {
-    let mut schematic_input_file = File::open(
-        "/home/lpaulic/Documents/github/advent-of-code/2023/day-three/src/bin/data/input",
-    )?;
+    let mut schematic_input_file =
+        File::open("/home/lpaulic/Documents/github/advent-of-code/2023/day-3/src/bin/data/input")?;
     let mut schematic_input = String::new();
 
     schematic_input_file.read_to_string(&mut schematic_input)?;

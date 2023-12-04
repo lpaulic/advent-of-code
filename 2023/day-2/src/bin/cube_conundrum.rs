@@ -1,14 +1,13 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-extern crate day_two;
-use day_two::Game;
+extern crate day_2;
+use day_2::Game;
 
 fn main() -> std::io::Result<()> {
     let available_balls = "12 red, 13 green, 14 blue";
-    let mut cube_conundrum_input_file = File::open(
-        "/home/lpaulic/Documents/github/advent-of-code/2023/day-two/src/bin/data/input",
-    )?;
+    let mut cube_conundrum_input_file =
+        File::open("/home/lpaulic/Documents/github/advent-of-code/2023/day-2/src/bin/data/input")?;
     let mut cube_conundrum_input = String::new();
 
     cube_conundrum_input_file.read_to_string(&mut cube_conundrum_input)?;
