@@ -50,7 +50,7 @@ impl Calibration {
             ["two", "t2o"],
             ["three", "t3e"],
             ["four", "f4r"],
-            ["five", "f5v"],
+            ["five", "f5e"],
             ["six", "s6x"],
             ["seven", "s7n"],
             ["eight", "e8t"],
