@@ -1,6 +1,7 @@
 mod fertilizer_to_water;
 mod humidity_to_location;
 mod light_to_temperature;
+mod seed;
 mod seed_to_soil;
 mod soil_to_fertilizer;
 mod temperature_to_humidity;
@@ -10,6 +11,7 @@ mod water_to_light;
 use self::fertilizer_to_water::*;
 use self::humidity_to_location::*;
 use self::light_to_temperature::*;
+use self::seed::*;
 use self::seed_to_soil::*;
 use self::soil_to_fertilizer::*;
 use self::temperature_to_humidity::*;
@@ -17,7 +19,7 @@ use self::water_to_light::*;
 
 #[derive(Debug)]
 pub struct FarmingAlmanac {
-    seeds: Vec<u64>,
+    seeds: SeedMap,
     seeds_to_soil_map: SeedToSoilMap,
     soil_to_fertilizer_map: SoilToFertilizerMap,
     fertilizer_to_water_map: FertilizerToWaterMap,
@@ -30,7 +32,7 @@ pub struct FarmingAlmanac {
 impl FarmingAlmanac {
     pub fn parse(almanac: &str) -> Self {
         FarmingAlmanac {
-            seeds: FarmingAlmanac::extract_seeds_from_almanac(almanac),
+            seeds: SeedMap::extract_seeds_from_almanac(almanac),
             seeds_to_soil_map: SeedToSoilMap::extract_seed_to_soil_map_from_almanac(almanac),
             soil_to_fertilizer_map:
                 SoilToFertilizerMap::extract_soil_to_fertilizer_map_from_almanac(almanac),
@@ -47,33 +49,29 @@ impl FarmingAlmanac {
     }
 
     pub fn get_min_location(&self) -> u64 {
-        self.seeds
-            .iter()
-            .map(|seed| self.seeds_to_soil_map.seed_to_soil(*seed))
-            .map(|soil| self.soil_to_fertilizer_map.soil_to_fertilizer(soil))
-            .map(|fertilizer| self.fertilizer_to_water_map.fertilizer_to_water(fertilizer))
-            .map(|water| self.water_to_light_map.water_to_light(water))
-            .map(|light| self.light_to_temperature_map.light_to_temperature(light))
-            .map(|temperature| {
-                self.temperature_to_humidity_map
-                    .temperature_to_humidity(temperature)
-            })
-            .map(|humidity| self.humidity_to_location_map.humidity_to_location(humidity))
-            .min_by(|location1, location2| location1.cmp(location2))
-            .unwrap()
-    }
+        let mut all_seeds_min_location: u64 = u64::MAX;
+        for seed in self.seeds.iter() {
+            println!("seed: {:?}", seed);
+            let seed_min_location = (seed.get_range_start()..seed.get_range_end())
+                .map(|seed| self.seeds_to_soil_map.seed_to_soil(seed))
+                .map(|soil| self.soil_to_fertilizer_map.soil_to_fertilizer(soil))
+                .map(|fertilizer| self.fertilizer_to_water_map.fertilizer_to_water(fertilizer))
+                .map(|water| self.water_to_light_map.water_to_light(water))
+                .map(|light| self.light_to_temperature_map.light_to_temperature(light))
+                .map(|temperature| {
+                    self.temperature_to_humidity_map
+                        .temperature_to_humidity(temperature)
+                })
+                .map(|humidity| self.humidity_to_location_map.humidity_to_location(humidity))
+                .min_by(|location1, location2| location1.cmp(location2))
+                .unwrap();
 
-    fn extract_seeds_from_almanac(almanac: &str) -> Vec<u64> {
-        almanac
-            .split('\n')
-            .filter(|line| line.to_lowercase().contains("seeds:"))
-            .collect::<String>()
-            .chars()
-            .filter(|character| character.is_whitespace() || character.is_ascii_digit())
-            .collect::<String>()
-            .split_whitespace()
-            .map(|digit| digit.trim().parse::<u64>().unwrap())
-            .collect()
+            if seed_min_location < all_seeds_min_location {
+                all_seeds_min_location = seed_min_location;
+            }
+        }
+
+        all_seeds_min_location
     }
 }
 
