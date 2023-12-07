@@ -84,7 +84,6 @@ impl Hand {
             (CardLabel::A(14), 0),
             (CardLabel::K(13), 0),
             (CardLabel::Q(12), 0),
-            (CardLabel::J(11), 0),
             (CardLabel::T(10), 0),
             (CardLabel::Nine(9), 0),
             (CardLabel::Eight(8), 0),
@@ -94,7 +93,7 @@ impl Hand {
             (CardLabel::Four(4), 0),
             (CardLabel::Three(3), 0),
             (CardLabel::Two(2), 0),
-            (CardLabel::One(1), 0),
+            (CardLabel::J(1), 0),
         ]);
 
         cards
@@ -105,7 +104,13 @@ impl Hand {
         if type_count_map.iter().any(|type_count| *type_count.1 == 5) {
             hand_type = HandType::FiveOfAKind(7);
         } else if type_count_map.iter().any(|type_count| *type_count.1 == 4) {
-            hand_type = HandType::FourOfAKind(6);
+            if type_count_map.get(&CardLabel::J(1)).unwrap() == &1
+                || type_count_map.get(&CardLabel::J(1)).unwrap() == &4
+            {
+                hand_type = HandType::FiveOfAKind(7);
+            } else {
+                hand_type = HandType::FourOfAKind(6);
+            }
         } else if type_count_map
             .iter()
             .filter(|type_count| *type_count.1 == 2)
@@ -117,20 +122,48 @@ impl Hand {
                 .count()
                 == 1
         {
-            hand_type = HandType::FullHouse(5);
+            if type_count_map.get(&CardLabel::J(1)).unwrap() == &2
+                || type_count_map.get(&CardLabel::J(1)).unwrap() == &3
+            {
+                hand_type = HandType::FiveOfAKind(7);
+            } else {
+                hand_type = HandType::FullHouse(5);
+            }
         } else if type_count_map.iter().any(|type_count| *type_count.1 == 3) {
-            hand_type = HandType::ThreeOfAKind(4);
+            if type_count_map.get(&CardLabel::J(1)).unwrap() == &3
+                || type_count_map.get(&CardLabel::J(1)).unwrap() == &1
+            {
+                hand_type = HandType::FourOfAKind(6);
+            } else {
+                hand_type = HandType::ThreeOfAKind(4);
+            }
         } else if type_count_map
             .iter()
             .filter(|type_count| *type_count.1 == 2)
             .count()
             == 2
         {
-            hand_type = HandType::TwoPair(3);
+            if type_count_map.get(&CardLabel::J(1)).unwrap() == &1 {
+                hand_type = HandType::FullHouse(5);
+            } else if type_count_map.get(&CardLabel::J(1)).unwrap() == &2 {
+                hand_type = HandType::FourOfAKind(6);
+            } else {
+                hand_type = HandType::TwoPair(3);
+            }
         } else if type_count_map.iter().any(|type_count| *type_count.1 == 2) {
-            hand_type = HandType::OnePair(2);
+            if type_count_map.get(&CardLabel::J(1)).unwrap() == &1
+                || type_count_map.get(&CardLabel::J(1)).unwrap() == &2
+            {
+                hand_type = HandType::ThreeOfAKind(4);
+            } else {
+                hand_type = HandType::OnePair(2);
+            }
         } else {
-            hand_type = HandType::HighCard(1);
+            if type_count_map.get(&CardLabel::J(1)).unwrap() == &1 {
+                hand_type = HandType::OnePair(2);
+            } else {
+                hand_type = HandType::HighCard(1);
+            }
         }
 
         hand_type
@@ -207,7 +240,7 @@ impl From<char> for Card {
             } else if c == 'Q' || c == 'q' {
                 CardLabel::Q(12)
             } else if c == 'J' || c == 'j' {
-                CardLabel::J(11)
+                CardLabel::J(1)
             } else if c == 'T' || c == 't' {
                 CardLabel::T(10)
             } else if c == '9' {
@@ -224,10 +257,8 @@ impl From<char> for Card {
                 CardLabel::Four(4)
             } else if c == '3' {
                 CardLabel::Three(3)
-            } else if c == '2' {
-                CardLabel::Two(2)
             } else {
-                CardLabel::One(1)
+                CardLabel::Two(2)
             },
         }
     }
@@ -238,7 +269,6 @@ enum CardLabel {
     A(u8),
     K(u8),
     Q(u8),
-    J(u8),
     T(u8),
     Nine(u8),
     Eight(u8),
@@ -248,7 +278,7 @@ enum CardLabel {
     Four(u8),
     Three(u8),
     Two(u8),
-    One(u8),
+    J(u8),
 }
 
 impl PartialOrd for CardLabel {
@@ -263,7 +293,6 @@ impl Ord for CardLabel {
             CardLabel::A(weight) => weight,
             CardLabel::K(weight) => weight,
             CardLabel::Q(weight) => weight,
-            CardLabel::J(weight) => weight,
             CardLabel::T(weight) => weight,
             CardLabel::Nine(weight) => weight,
             CardLabel::Eight(weight) => weight,
@@ -273,14 +302,13 @@ impl Ord for CardLabel {
             CardLabel::Four(weight) => weight,
             CardLabel::Three(weight) => weight,
             CardLabel::Two(weight) => weight,
-            CardLabel::One(weight) => weight,
+            CardLabel::J(weight) => weight,
         };
 
         let other_weight = match *other {
             CardLabel::A(weight) => weight,
             CardLabel::K(weight) => weight,
             CardLabel::Q(weight) => weight,
-            CardLabel::J(weight) => weight,
             CardLabel::T(weight) => weight,
             CardLabel::Nine(weight) => weight,
             CardLabel::Eight(weight) => weight,
@@ -290,7 +318,7 @@ impl Ord for CardLabel {
             CardLabel::Four(weight) => weight,
             CardLabel::Three(weight) => weight,
             CardLabel::Two(weight) => weight,
-            CardLabel::One(weight) => weight,
+            CardLabel::J(weight) => weight,
         };
 
         self_weight.cmp(&other_weight)
@@ -328,7 +356,7 @@ mod tests {
     #[test]
     fn camel_cards_five_hands_different_types() {
         assert_camel_card_total_winnings(
-            6440,
+            5905,
             "32T3K 765\nT55J5 684\nKK677 28\nKTJJT 220\nQQQJA 483\n",
         );
     }
