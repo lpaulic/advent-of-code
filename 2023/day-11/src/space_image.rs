@@ -107,13 +107,13 @@ impl SpaceImage {
         galaxies.iter_mut().for_each(|galaxy| {
             const GALAXY_AGE_CONSTANT: u64 = 1000000;
 
-            galaxy.position_x += GALAXY_AGE_CONSTANT
+            galaxy.position_x += (GALAXY_AGE_CONSTANT - 1)
                 * empty_space_rows
                     .iter()
                     .filter(|column| **column < galaxy.position_x)
                     .count() as u64;
 
-            galaxy.position_y += GALAXY_AGE_CONSTANT
+            galaxy.position_y += (GALAXY_AGE_CONSTANT - 1)
                 * empty_space_columns
                     .iter()
                     .filter(|column| **column < galaxy.position_y)
@@ -161,20 +161,20 @@ mod tests {
     #[test]
     fn shortest_path_between_two_galaxies_on_one_line() {
         assert_shortest_path_sum(1, "##");
-        assert_shortest_path_sum(1000002, ".#.#.");
+        assert_shortest_path_sum(1000001, ".#.#.");
     }
 
     #[test]
     fn shortest_path_between_two_galaxies_on_multiple_lines() {
         assert_shortest_path_sum(1, "#\n#\n");
         assert_shortest_path_sum(2, "\n.#.\n..#\n");
-        assert_shortest_path_sum(1000002, "\n.#.\n...\n.#.\n");
+        assert_shortest_path_sum(1000001, "\n.#.\n...\n.#.\n");
     }
 
     #[test]
     fn shortest_path_between_three_galaxies_on_one_line() {
-        assert_shortest_path_sum(4000008, "#.#.#");
-        assert_shortest_path_sum(12000016, ".#..#....#");
+        assert_shortest_path_sum(4000004, "#.#.#");
+        assert_shortest_path_sum(12000004, ".#..#....#");
     }
 
     #[test]
@@ -185,6 +185,6 @@ mod tests {
 
     #[test]
     fn shortest_path_between_nine_galaxies_on_multiple_lines() {
-        assert_shortest_path_sum(82000292, "...#......\n.......#..\n#.........\n..........\n......#...\n.#........\n.........#\n..........\n.......#..\n#...#.....");
+        assert_shortest_path_sum(82000210, "...#......\n.......#..\n#.........\n..........\n......#...\n.#........\n.........#\n..........\n.......#..\n#...#.....");
     }
 }
